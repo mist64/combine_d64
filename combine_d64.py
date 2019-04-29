@@ -54,7 +54,7 @@ elif len(identical_sets) > 1:
 		sn += 1
 	sys.exit()
 
-# Analyze Sectors
+# Analyze Blocks
 
 for block_number in range(0, 683):
 	block_variants = []
@@ -85,19 +85,23 @@ min_copies = None
 for i in range(0, 683):
 	if min_copies == None or len(good_indexes[i]) <= min_copies:
 		min_copies = len(good_indexes[i])
-		break
 
 if min_copies >= 3:
-	print "All sectors had at least {} copies.".format(min_copies)
-else:
-	print "The following sectors only had a limited number of copies:"
+	print "All blocks had at least {} copies.".format(min_copies)
+elif min_copies:
+	print "The following blocks only had a limited number of copies:"
 	for i in range(0, 683):
 		if len(good_indexes[i]) <= 2:
-			print "{} copies of sector {} in".format(len(good_indexes[i]), i),
+			print "{} copies of block {} in".format(len(good_indexes[i]), i),
 			for j in good_indexes[i]:
 				print filenames[j],
 			print
-
+else:
+	print "For the following blocks, no duplicates exist:"
+	for i in range(0, 683):
+		if good_indexes[i] == []:
+			print i,
+	sys.exit()
 
 # 2. Is there is an image where every block is also found in another image?
 
@@ -113,21 +117,12 @@ for i in range(0, numfiles):
 		perfect_indexes.append(i)
 
 if len(perfect_indexes):
-	print "Every sector of the following images is also contained in at least one other file:"
+	print "Every block of the following images is also contained in at least one other file:"
 	for i in perfect_indexes:
 		print filenames[i]
 	sys.exit()
 
-# 3a. Can we create a combined image?
-
-if [] in good_indexes:
-	print "For the following sectors, no duplicates exist:"
-	for i in range(0, 683):
-		if good_indexes[i] == []:
-			print i,
-	sys.exit()
-
-# 3b. Create a combined image from blocks that were seen multiple times
+# 3. Create a combined image from blocks that were seen multiple times
 
 result_d64 = bytearray()
 source_usage = [0] * numfiles
@@ -139,6 +134,6 @@ for block_number in range(0, 683):
 
 print "The result was combined from the following images:"
 for i in range(0, numfiles):
-	print "{} ({} sectors)".format(filenames[i], source_usage[i])
+	print "{} ({} blocks)".format(filenames[i], source_usage[i])
 
 open("result.d64", "wb").write(result_d64)
