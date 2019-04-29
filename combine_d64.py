@@ -58,6 +58,8 @@ for block_number in range(0, 683):
 	for file in range(0, numfiles):
 		if not errors[file] or errors[file][block_number] == 1: # no errorr
 			block_variants.append(data[file][block_number * 256:(block_number + 1) * 256])
+		else:
+			block_variants.append(None)
 
 	copies = [0] * len(block_variants)
 
@@ -93,7 +95,16 @@ if len(perfect_indexes):
 		print filenames[i]
 	sys.exit()
 
-# 3. Create a new image from blocks that were seen multiple times
+# 3a. Can we create a combined image?
+
+if [] in good_indexes:
+	print "For the following sectors, no duplicates exist:"
+	for i in range(0, 683):
+		if good_indexes[i] == []:
+			print i,
+	sys.exit()
+
+# 3b. Create a combined image from blocks that were seen multiple times
 
 result_d64 = bytearray()
 source_usage = [0] * numfiles
@@ -106,5 +117,22 @@ for block_number in range(0, 683):
 print "The result was combined from the following images:"
 for i in range(0, numfiles):
 	print "{} ({} sectors)".format(filenames[i], source_usage[i])
+
+min_copies = None
+for i in range(0, 683):
+	if min_copies == None or len(good_indexes[i]) <= min_copies:
+		min_copies = len(good_indexes[i])
+		break
+
+if min_copies >= 3:
+	print "All sectors only had at least {} copies.".format(min_copies)
+else:
+	print "The following sectors only had a limited number of copies:"
+	for i in range(0, 683):
+		if len(good_indexes[i]) <= 2:
+			print("{} copies of sector {} in".format(len(good_indexes[i]), i)),
+			for j in good_indexes[i]:
+				print filenames[j],
+			print
 
 open("result.d64", "wb").write(result_d64)
