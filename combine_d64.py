@@ -54,8 +54,7 @@ elif len(identical_sets) > 1:
 		sn += 1
 	sys.exit()
 
-
-# 2. Is there is an image where every block is also found in another image?
+# Analyze Sectors
 
 for block_number in range(0, 683):
 	block_variants = []
@@ -81,6 +80,26 @@ for block_number in range(0, 683):
 				gi.append(i)
 
 	good_indexes.append(gi)
+
+min_copies = None
+for i in range(0, 683):
+	if min_copies == None or len(good_indexes[i]) <= min_copies:
+		min_copies = len(good_indexes[i])
+		break
+
+if min_copies >= 3:
+	print "All sectors had at least {} copies.".format(min_copies)
+else:
+	print "The following sectors only had a limited number of copies:"
+	for i in range(0, 683):
+		if len(good_indexes[i]) <= 2:
+			print "{} copies of sector {} in".format(len(good_indexes[i]), i),
+			for j in good_indexes[i]:
+				print filenames[j],
+			print
+
+
+# 2. Is there is an image where every block is also found in another image?
 
 perfect_indexes = []
 
@@ -121,22 +140,5 @@ for block_number in range(0, 683):
 print "The result was combined from the following images:"
 for i in range(0, numfiles):
 	print "{} ({} sectors)".format(filenames[i], source_usage[i])
-
-min_copies = None
-for i in range(0, 683):
-	if min_copies == None or len(good_indexes[i]) <= min_copies:
-		min_copies = len(good_indexes[i])
-		break
-
-if min_copies >= 3:
-	print "All sectors only had at least {} copies.".format(min_copies)
-else:
-	print "The following sectors only had a limited number of copies:"
-	for i in range(0, 683):
-		if len(good_indexes[i]) <= 2:
-			print "{} copies of sector {} in".format(len(good_indexes[i]), i),
-			for j in good_indexes[i]:
-				print filenames[j],
-			print
 
 open("result.d64", "wb").write(result_d64)
