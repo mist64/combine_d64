@@ -7,6 +7,10 @@ data = []
 errors = []
 good_indexes = []
 
+if not numfiles:
+	print "Usage: {} <file1.d64> <file2.d64> [...]".format(sys.argv[0])
+	sys.exit()
+
 # read all files
 
 for i in range(0, numfiles):
@@ -34,13 +38,13 @@ for i in range(0, numfiles):
 			if not merged:
 				identical_sets.append(sets.Set([i, j]))
 if len(identical_sets) == 1:
-	print("The following images are identical:")
+	print "The following images are identical:"
 	for i in identical_sets[0]:
 		print filenames[i],
 	print
 	sys.exit()
 elif len(identical_sets) > 1:
-	print("The following sets of images are identical:")
+	print "The following sets of images are identical:"
 	sn = 0
 	for set in identical_sets:
 		print sn,":",
@@ -130,7 +134,7 @@ else:
 	print "The following sectors only had a limited number of copies:"
 	for i in range(0, 683):
 		if len(good_indexes[i]) <= 2:
-			print("{} copies of sector {} in".format(len(good_indexes[i]), i)),
+			print "{} copies of sector {} in".format(len(good_indexes[i]), i),
 			for j in good_indexes[i]:
 				print filenames[j],
 			print
