@@ -1,6 +1,26 @@
 import sys
 import sets
 
+def unlinear(l):
+	if (l<17*21):
+		t = l/21 + 1;
+		s = l % 21;
+		return (t, s);
+	l -= 17*21;
+	if (l<(24-17)*19):
+		t = l/19 + 17 + 1;
+		s = l % 19;
+		return (t, s);
+	l -= (24-17)*19;
+	if (l<(30-24)*18):
+		t = l/18 + 24 + 1;
+		s = l % 18;
+		return (t, s);
+	l -= (30-24)*18;
+	t = l/17 + 30 + 1;
+	s = l % 17;
+	return (t, s);
+
 filenames = sys.argv[1:]
 numfiles = len(filenames)
 data = []
@@ -59,7 +79,7 @@ elif len(identical_sets) > 1:
 for block_number in range(0, 683):
 	block_variants = []
 	for file in range(0, numfiles):
-		if not errors[file] or errors[file][block_number] == 1: # no errorr
+		if not errors[file] or errors[file][block_number] == 1: # no error
 			block_variants.append(data[file][block_number * 256:(block_number + 1) * 256])
 		else:
 			block_variants.append(None)
@@ -92,7 +112,8 @@ elif min_copies:
 	print "The following blocks only had a limited number of copies:"
 	for i in range(0, 683):
 		if len(good_indexes[i]) <= 2:
-			print "{} copies of block {} in".format(len(good_indexes[i]), i),
+			(t, s) = unlinear(i)
+			print "{} copies of block {} (Trk {} Sec {}) in".format(len(good_indexes[i]), i, t, s),
 			for j in good_indexes[i]:
 				print filenames[j],
 			print
@@ -100,7 +121,8 @@ else:
 	print "For the following blocks, no duplicates exist:"
 	for i in range(0, 683):
 		if good_indexes[i] == []:
-			print i,
+			(t, s) = unlinear(i)
+			print "{} (Trk {} Sec {})".format(i, t, s),
 	sys.exit()
 
 # 2. Is there is an image where every block is also found in another image?
@@ -134,6 +156,7 @@ for block_number in range(0, 683):
 
 print "The result was combined from the following images:"
 for i in range(0, numfiles):
-	print "{} ({} blocks)".format(filenames[i], source_usage[i])
+	if source_usage[i]:
+		print "{} ({} blocks)".format(filenames[i], source_usage[i])
 
 open("result.d64", "wb").write(result_d64)
