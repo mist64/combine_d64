@@ -14,6 +14,8 @@ for i in range(0, numfiles):
 	data.append(d64)
 	if len(d64) > 0x2ab00:
 		errors.append(data[0x2ab00:])
+	else:
+		errors.append(None)
 
 # 1. Are two images the same?
 
@@ -54,7 +56,8 @@ elif len(identical_sets) > 1:
 for block_number in range(0, 683):
 	block_variants = []
 	for file in range(0, numfiles):
-		block_variants.append(data[file][block_number * 256:(block_number + 1) * 256])
+		if not errors[file] or errors[file][block_number] == 1: # no errorr
+			block_variants.append(data[file][block_number * 256:(block_number + 1) * 256])
 
 	copies = [0] * len(block_variants)
 
